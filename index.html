@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>OVY GRAPHIX</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--text:#1b2638;--muted:#758197;--line:#e1e6ef;--blue:#245de8;--dark:#101827}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px Arial,Helvetica,sans-serif}
+button,input,textarea{font:inherit}
+button{border:0;border-radius:9px;padding:10px 13px;cursor:pointer;font-weight:600}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--blue);color:white}
+.secondary{background:#edf1f7;color:#25344d}
+.danger{background:#fee8e8;color:#a21c2b}
+header{background:var(--dark);color:#fff;padding:16px 4%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-size:24px;font-weight:900;letter-spacing:1px}
+.brand span{color:#7ea5ff}
+header small{color:#c1c9d8}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{background:#202d43;color:#fff}
+nav button.active{background:var(--blue)}
+main{max-width:1050px;margin:22px auto;padding:0 14px}
+.panel,.post,.challenge,.member,.profile-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px;margin-bottom:15px}
+h2{font-size:21px;margin-top:0}
+h3{font-size:17px;margin-top:0}
+.muted{color:var(--muted);font-size:13px}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+input,textarea{width:100%;border:1px solid #dce2ec;border-radius:9px;padding:11px;margin:5px 0 12px;background:#fff;color:#1b2638}
+textarea{min-height:85px;resize:vertical}
+label{font-size:13px;font-weight:700}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.avatar{width:43px;height:43px;border-radius:50%;object-fit:cover;background:#e7ebf3;flex-shrink:0}
+.cover{width:100%;height:170px;object-fit:cover;border-radius:10px;background:#e7ebf3}
+.post-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.post-head .who{flex:1;min-width:0}
+.post-image{display:block;width:100%;max-height:850px;object-fit:contain;background:#eef1f5;border-radius:9px;margin-top:12px;cursor:zoom-in}
+.post-text{white-space:pre-wrap;overflow-wrap:anywhere}
+.image-info{font-size:12px;color:var(--muted);margin-top:7px}
+.badge-verified{display:inline-flex;vertical-align:middle;width:17px;height:17px;margin-left:3px}
+.badge-verified svg{width:17px;height:17px}
+.reactions{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.react{background:#f0f3f8;border:1px solid #e4e9f1;padding:8px 10px}
+.react.selected{background:#e1eaff;border-color:#80a5ff;color:#174ac7}
+.comment-list{border-top:1px solid var(--line);padding-top:9px;margin-top:10px}
+.comment{display:flex;gap:8px;margin:12px 0}
+.comment .avatar{width:31px;height:31px}
+.comment-body{background:#f3f5f9;padding:9px 11px;border-radius:12px;flex:1;overflow-wrap:anywhere}
+.comment-body p{margin:5px 0}
+.comment-form{display:flex;gap:7px;align-items:flex-start}
+.comment-form input{flex:1;min-width:0}
+.challenge>img{width:100%;max-height:350px;object-fit:contain;background:#eef1f5;border-radius:9px}
+.member{display:flex;align-items:center;gap:10px}
+.member .member-info{min-width:0;flex:1}
+.notice{padding:11px;border-radius:9px;background:#fff4d9;color:#75520c;font-size:13px;margin:10px 0}
+footer{text-align:center;color:var(--muted);padding:25px}
+hr{border:0;border-top:1px solid var(--line)}
+#lightbox{position:fixed;inset:0;background:#080b11f2;z-index:1000;display:flex;align-items:center;justify-content:center;padding:15px}
+#lightbox img{max-width:100%;max-height:90vh;object-fit:contain}
+#lightbox button{position:absolute;top:15px;right:15px}
+@media(max-width:600px){header{padding:13px}.brand{font-size:21px}main{margin:14px auto}.panel,.post,.challenge,.profile-card{padding:13px}.cover{height:125px}.comment-form button{padding:10px}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="brand">OVY <span>GRAPHIX</span></div>
+    <small>Créativité · Défis · Communauté</small>
+  </div>
+  <nav id="nav" class="hidden">
+    <button class="active" data-page="feed">Accueil</button>
+    <button data-page="challenges">Défis</button>
+    <button data-page="members">Membres</button>
+    <button data-page="profile">Profil</button>
+    <button data-page="admin" id="adminNav" class="hidden">Admin</button>
+    <button id="logoutBtn">Quitter</button>
+  </nav>
+</header>
+
+<main>
+<section id="auth">
+  <div class="panel" style="max-width:470px;margin:30px auto">
+    <h2 id="authTitle">Bienvenue sur OVY GRAPHIX</h2>
+    <p class="muted">Connecte-toi ou crée ton compte.</p>
+    <form id="authForm">
+      <div id="nameWrap">
+        <label>Nom affiché</label>
+        <input id="authName" maxlength="45" placeholder="Ton nom" required>
+      </div>
+      <label>Email</label>
+      <input id="authEmail" type="email" required placeholder="ton@email.com">
+      <label>Mot de passe</label>
+      <input id="authPassword" type="password" minlength="6" required placeholder="6 caractères minimum">
+      <button class="primary" style="width:100%" id="authSubmit">Créer mon compte</button>
+    </form>
+    <p id="authMessage" class="muted"></p>
+    <button id="switchAuth" class="secondary" style="width:100%">J'ai déjà un compte</button>
+    <div class="notice">Les comptes et publications de cette version sont stockés localement sur cet appareil. La synchronisation entre appareils nécessite un serveur.</div>
+  </div>
+</section>
+
+<section id="app" class="hidden">
+  <div id="page-feed">
+    <div id="siteBannerWrap" class="panel hidden"><img id="siteBanner" class="cover" alt="Bannière du site"></div>
+    <div class="panel">
+      <h2>Publications</h2>
+      <p class="muted">Photos HD jusqu'à 20 Mo. Les images ne sont pas compressées par le site.</p>
+      <form id="postForm">
+        <label>Texte de la publication</label>
+        <textarea id="postText" maxlength="3000" placeholder="Présente ta création..."></textarea>
+        <label>Photo ou création (20 Mo maximum)</label>
+        <input id="postImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
+        <div id="postImageInfo" class="image-info"></div>
+        <button class="primary">Publier</button>
+      </form>
+    </div>
+    <div id="feed"></div>
+  </div>
+
+  <div id="page-challenges" class="hidden">
+    <div class="panel"><h2>Défis graphiques</h2><p class="muted">Participe aux défis avant leur date limite.</p></div>
+    <div id="challengeCreate" class="panel hidden">
+      <h3>Créer un défi</h3>
+      <form id="challengeForm">
+        <label>Titre</label><input id="challengeTitle" maxlength="100" required>
+        <label>Description et règles</label><textarea id="challengeDescription" maxlength="3000" required></textarea>
+        <label>Date limite</label><input id="challengeDeadline" type="datetime-local" required>
+        <label>Affiche du défi (20 Mo maximum)</label><input id="challengeImage" type="file" accept="image/*">
+        <div id="challengeImageInfo" class="image-info"></div>
+        <button class="primary">Créer le défi</button>
+      </form>
+    </div>
+    <div id="challengeList"></div>
+  </div>
+
+  <div id="page-members" class="hidden">
+    <div class="panel"><h2>Membres</h2><input id="memberSearch" placeholder="Rechercher un membre..."></div>
+    <div id="memberList" class="grid"></div>
+  </div>
+
+  <div id="page-profile" class="hidden">
+    <div class="panel">
+      <h2>Mon profil</h2>
+      <img id="myCoverPreview" class="cover" alt="Couverture">
+      <div class="row" style="margin:10px 0">
+        <img id="myAvatarPreview" class="avatar" style="width:70px;height:70px" alt="Photo de profil">
+        <div><strong id="myProfileName"></strong><div id="myProfileEmail" class="muted"></div></div>
+      </div>
+      <form id="profileForm">
+        <label>Nom affiché</label><input id="profileName" maxlength="45" required>
+        <label>Biographie</label><textarea id="profileBio" maxlength="400"></textarea>
+        <label>Photo de profil HD (20 Mo maximum)</label><input id="profileAvatar" type="file" accept="image/*">
+        <div id="profileAvatarInfo" class="image-info"></div>
+        <label>Couverture HD (20 Mo maximum)</label><input id="profileCover" type="file" accept="image/*">
+        <div id="profileCoverInfo" class="image-info"></div>
+        <button class="primary">Enregistrer le profil</button>
+      </form>
+    </div>
+    <h3>Mes publications</h3><div id="myPosts"></div>
+  </div>
+
+  <div id="page-admin" class="hidden">
+    <div class="panel">
+      <h2>Administration</h2>
+      <label>Bannière du site (20 Mo maximum)</label>
+      <input type="file" id="bannerUpload" accept="image/*">
+      <div id="bannerImageInfo" class="image-info"></div>
+      <button id="removeBanner" class="secondary">Retirer la bannière</button>
+    </div>
+    <div class="panel"><h3>Demandes de compte</h3><div id="pendingUsers"></div></div>
+    <div class="panel"><h3>Membres</h3><div id="adminUsers"></div></div>
+    <div class="panel"><h3>Publications</h3><div id="adminPosts"></div></div>
+    <div class="panel"><h3>Défis</h3><div id="adminChallenges"></div></div>
+  </div>
+
+  <div id="page-publicProfile" class="hidden">
+    <button class="secondary" id="backMembers">← Retour aux membres</button>
+    <div id="publicProfileContent" style="margin-top:12px"></div>
+  </div>
+</section>
+</main>
+<footer>OVY GRAPHIX · Créons ensemble.</footer>
+<div id="lightbox" class="hidden"><button class="secondary" id="closeLightbox">✕ Fermer</button><img id="lightboxImage" alt="Image agrandie"></div>
+
+<script>
+"use strict";
+
+const ADMIN_EMAIL = "jonathanandritiana@gmail.com";
+const MAX_IMAGE_SIZE = 20 * 1024 * 1024;
+const DB_NAME = "ovy-graphix-hd";
+const STORE = "records";
+const KEY = "ovy-graphix-state-hd";
+const $ = id => document.getElementById(id);
+const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2);
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dateText = d => {const v=new Date(d);return Number.isNaN(v.getTime())?"":v.toLocaleString("fr-FR")};
+const badgeHTML = `<span class="badge-verified" title="Compte vérifié"><svg viewBox="0 0 24 24"><path fill="#2475f5" d="M12 1.8l3 1.5 3.4-.1 1.4 3.1 2.6 2.2-.7 3.3.7 3.3-2.6 2.2-1.4 3.1-3.4-.1-3 1.5-3-1.5-3.4.1-1.4-3.1-2.6-2.2.7-3.3-.7-3.3 2.6-2.2 1.4-3.1 3.4.1z"/><path fill="white" d="M10.1 15.8l-3.2-3.2 1.5-1.5 1.8 1.8 5-5 1.5 1.5z"/></svg></span>`;
+let db, state={users:[],posts:[],challenges:[],me:null,banner:""}, loginMode="signup", publicProfileId=null;
+let saveQueue=Promise.resolve();
+
+function openDB(){return new Promise((resolve,reject)=>{
+  const r=indexedDB.open(DB_NAME,1);
+  r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};
+  r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);
+})}
+function getDB(key){return new Promise((resolve,reject)=>{
+  const r=db.transaction(STORE,"readonly").objectStore(STORE).get(key);
+  r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);
+})}
+function putDB(key,value){return new Promise((resolve,reject)=>{
+  const tx=db.transaction(STORE,"readwrite");tx.objectStore(STORE).put(value,key);
+  tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+})}
+function save(){saveQueue=saveQueue.then(()=>putDB(KEY,state));return saveQueue}
+function me(){return state.users.find(u=>u.id===state.me)||null}
+function admin(){return me()?.role==="admin"}
+function photo(u){return u?.avatar||""}
+function avatar(u,style=""){return `<img class="avatar" style="${style}" src="${photo(u)}" alt="">`}
+function nameHTML(u){return esc(u?.name||"Membre")+(u?.verified?badgeHTML:"")}
+function fmtBytes(n){return n>=1024*1024?(n/1024/1024).toFixed(2)+" Mo":(n/1024).toFixed(1)+" Ko"}
+function inspectImage(file){
+  return new Promise((resolve,reject)=>{
+    if(!file)return resolve(null);
+    if(!file.type.startsWith("image/"))return reject(Error("Choisis un fichier image valide."));
+    if(file.size>MAX_IMAGE_SIZE)return reject(Error("Photo trop volumineuse : maximum 20 Mo."));
+    const reader=new FileReader();
+    reader.onerror=()=>reject(Error("Impossible de lire l'image."));
+    reader.onload=()=>{
+      const result=reader.result;
+      const im=new Image();
+      im.onload=()=>resolve({data:result,width:im.naturalWidth,height:im.naturalHeight,size:file.size,name:file.name,type:file.type});
+      im.onerror=()=>reject(Error("Cette image ne peut pas être ouverte par le navigateur."));
+      im.src=result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function fileData(file){return inspectImage(file).then(x=>x?x.data:"")}
+function bindImageInfo(inputId,infoId){
+  $(inputId).addEventListener("change",async()=>{
+    const file=$(inputId).files[0];if(!file){$(infoId).textContent="";return}
+    try{
+      const img=await inspectImage(file);
+      $(infoId).textContent=`${img.name} · ${fmtBytes(img.size)} · ${img.width} × ${img.height} px · ${img.type}`;
+    }catch(e){alert(e.message);$(inputId).value="";$(infoId).textContent=""}
+  });
+}
+function passwordHash(p){
+  if(!crypto.subtle)return Promise.reject(Error("Ouvre le site via HTTPS ou localhost pour créer un compte."));
+  return crypto.subtle.digest("SHA-256",new TextEncoder().encode(p)).then(buf=>Array.from(new Uint8Array(buf)).map(x=>x.toString(16).padStart(2,"0")).join(""));
+}
+function renderAuth(){
+  $("auth").classList.toggle("hidden",!!me());
+  $("app").classList.toggle("hidden",!me());
+  $("nav").classList.toggle("hidden",!me());
+  $("adminNav").classList.toggle("hidden",!admin());
+}
+function setPage(page){
+  if(page==="admin"&&!admin())page="feed";
+  ["feed","challenges","members","profile","admin","publicProfile"].forEach(p=>$("page-"+p).classList.toggle("hidden",p!==page));
+  document.querySelectorAll("nav [data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+  if(page==="feed")renderFeed();
+  if(page==="challenges")renderChallenges();
+  if(page==="members")renderMembers();
+  if(page==="profile")renderProfile();
+  if(page==="admin")renderAdmin();
+  if(page==="publicProfile")renderPublicProfile();
+}
+$("switchAuth").onclick=()=>{
+  loginMode=loginMode==="signup"?"login":"signup";
+  $("authTitle").textContent=loginMode==="signup"?"Créer un compte":"Connexion";
+  $("authSubmit").textContent=loginMode==="signup"?"Créer mon compte":"Me connecter";
+  $("nameWrap").classList.toggle("hidden",loginMode==="login");
+  $("authName").required=loginMode==="signup";
+  $("switchAuth").textContent=loginMode==="signup"?"J'ai déjà un compte":"Créer un compte";
+  $("authMessage").textContent="";
+};
+$("authForm").onsubmit=async e=>{
+  e.preventDefault();
+  const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;
+  try{
+    const hash=await passwordHash(password);
+    if(loginMode==="signup"){
+      if(state.users.some(u=>u.email===email))throw Error("Cette adresse est déjà inscrite.");
+      const isAdmin=email===ADMIN_EMAIL.toLowerCase();
+      const u={id:uid(),name:$("authName").value.trim(),email,hash,role:isAdmin?"admin":"member",verified:isAdmin,status:isAdmin?"approved":"pending",avatar:"",cover:"",bio:"",created:Date.now()};
+      state.users.push(u);
+      if(isAdmin){state.me=u.id;await save();renderAuth();setPage("feed");alert("Compte administrateur créé sur cet appareil.");}
+      else{await save();$("authMessage").textContent="Demande enregistrée sur cet appareil. L'administrateur doit l'approuver ici."}
+    }else{
+      const u=state.users.find(x=>x.email===email&&x.hash===hash);
+      if(!u)throw Error("Email ou mot de passe incorrect.");
+      if(u.status!=="approved")throw Error("Compte en attente d'approbation ou refusé.");
+      state.me=u.id;await save();renderAuth();setPage("feed");
+    }
+  }catch(err){$("authMessage").textContent=err.message}
+};
+$("logoutBtn").onclick=async()=>{state.me=null;await save();renderAuth()};
+$("nav").onclick=e=>{const b=e.target.closest("[data-page]");if(b)setPage(b.dataset.page)};
+$("backMembers").onclick=()=>setPage("members");
+
+function renderBanner(){
+  $("siteBannerWrap").classList.toggle("hidden",!state.banner);
+  if(state.banner)$("siteBanner").src=state.banner;
+}
+function postCard(p){
+  const u=state.users.find(x=>x.id===p.userId);if(!u)return "";
+  p.reactions=p.reactions||{};p.comments=p.comments||[];
+  const counts={};Object.values(p.reactions).forEach(v=>counts[v]=(counts[v]||0)+1);
+  const emojis=["👍","❤️","😂","😮","😢","😡"];
+  return `<article class="post">
+    <div class="post-head">${avatar(u)}<div class="who"><strong>${nameHTML(u)}</strong><div class="muted">${dateText(p.created)}</div></div>
+    ${(admin()||p.userId===state.me)?`<button class="secondary" data-del-post="${esc(p.id)}">Supprimer</button>`:""}
+    </div>
+    ${p.text?`<div class="post-text">${esc(p.text)}</div>`:""}
+    ${p.image?`<img class="post-image" data-zoom src="${p.image}" alt="Création en haute résolution" loading="lazy"><div class="image-info">${esc(p.imageInfo||"Image originale conservée")}</div>`:""}
+    <div class="reactions">${emojis.map(em=>`<button class="react ${p.reactions[state.me]===em?"selected":""}" data-react="${esc(p.id)}" data-emoji="${em}">${em} ${counts[em]||""}</button>`).join("")}</div>
+    <div class="muted">${p.comments.length} commentaire(s)</div>
+    <div class="comment-list">${p.comments.map(c=>{
+      const cu=state.users.find(x=>x.id===c.userId)||{name:"Membre"};
+      return `<div class="comment">${avatar(cu)}<div class="comment-body"><strong>${nameHTML(cu)}</strong><div class="muted">${dateText(c.created)}</div><p>${esc(c.text)}</p>${(admin()||c.userId===state.me)?`<button class="secondary" data-del-comment="${esc(p.id)}" data-cid="${esc(c.id)}">Supprimer</button>`:""}</div></div>`;
+    }).join("")}</div>
+    <form class="comment-form" data-comment="${esc(p.id)}"><input name="text" maxlength="800" required placeholder="Écrire un commentaire..."><button class="primary">Envoyer</button></form>
+  </article>`;
+}
+function renderFeed(){
+  renderBanner();
+  $("feed").innerHTML=state.posts.slice().sort((a,b)=>b.created-a.created).map(postCard).join("")||`<div class="panel muted">Aucune publication pour le moment.</div>`;
+}
+$("postForm").onsubmit=async e=>{
+  e.preventDefault();
+  const text=$("postText").value.trim(),file=$("postImage").files[0];
+  if(!text&&!file){alert("Ajoute du texte ou une image.");return}
+  try{
+    const img=await inspectImage(file);
+    state.posts.push({id:uid(),userId:state.me,text,image:img?.data||"",imageInfo:img?`${img.width} × ${img.height} px · ${fmtBytes(img.size)} · ${img.type}`:"",created:Date.now(),reactions:{},comments:[]});
+    await save();$("postForm").reset();$("postImageInfo").textContent="";renderFeed();
+  }catch(err){alert(err.message)}
+};
+$("feed").onclick=async e=>{
+  const r=e.target.closest("[data-react]"),d=e.target.closest("[data-del-post]"),dc=e.target.closest("[data-del-comment]");
+  if(r){
+    const p=state.posts.find(x=>x.id===r.dataset.react);if(!p)return;
+    p.reactions=p.reactions||{};
+    if(p.reactions[state.me]===r.dataset.emoji)delete p.reactions[state.me];else p.reactions[state.me]=r.dataset.emoji;
+    await save();renderFeed();
+  }
+  if(d){
+    const p=state.posts.find(x=>x.id===d.dataset.delPost);
+    if(p&&(admin()||p.userId===state.me)&&confirm("Supprimer cette publication ?")){
+      state.posts=state.posts.filter(x=>x.id!==p.id);await save();renderFeed();
+    }
+  }
+  if(dc){
+    const p=state.posts.find(x=>x.id===dc.dataset.delComment),c=p?.comments.find(x=>x.id===dc.dataset.cid);
+    if(p&&c&&(admin()||c.userId===state.me)){
+      p.comments=p.comments.filter(x=>x.id!==c.id);await save();renderFeed();
+    }
+  }
+  const zoom=e.target.closest("[data-zoom]");
+  if(zoom){$("lightboxImage").src=zoom.src;$("lightbox").classList.remove("hidden")}
+};
+$("feed").onsubmit=async e=>{
+  const f=e.target.closest("[data-comment]");if(!f)return;e.preventDefault();
+  const p=state.posts.find(x=>x.id===f.dataset.comment),text=f.elements.text.value.trim();if(!p||!text)return;
+  p.comments=p.comments||[];p.comments.push({id:uid(),userId:state.me,text,created:Date.now()});
+  await save();renderFeed();
+};
+$("closeLightbox").onclick=()=>$("lightbox").classList.add("hidden");
+$("lightbox").onclick=e=>{if(e.target===$("lightbox"))$("lightbox").classList.add("hidden")};
+
+$("challengeForm").onsubmit=async e=>{
+  e.preventDefault();if(!admin())return;
+  try{
+    const img=await inspectImage($("challengeImage").files[0]);
+    state.challenges.push({id:uid(),title:$("challengeTitle").value.trim(),description:$("challengeDescription").value.trim(),deadline:new Date($("challengeDeadline").value).getTime(),image:img?.data||"",imageInfo:img?`${img.width} × ${img.height} px · ${fmtBytes(img.size)}`:"",created:Date.now(),closed:false,entries:[]});
+    await save();$("challengeForm").reset();$("challengeImageInfo").textContent="";renderChallenges();renderAdmin();
+  }catch(err){alert(err.message)}
+};
+function renderChallenges(){
+  $("challengeCreate").classList.toggle("hidden",!admin());
+  $("challengeList").innerHTML=state.challenges.slice().sort((a,b)=>b.created-a.created).map(c=>{
+    c.entries=c.entries||[];const closed=c.closed||c.deadline<Date.now();
+    return `<article class="challenge"><h3>${esc(c.title)}</h3>${c.image?`<img data-zoom src="${c.image}" alt="Affiche du défi"><div class="image-info">${esc(c.imageInfo||"")}</div>`:""}<p class="post-text">${esc(c.description)}</p><p class="muted">${closed?"Terminé":"En cours"} · Limite : ${dateText(c.deadline)}</p>
+    ${!closed?`<form data-entry="${esc(c.id)}"><label>Ta création (20 Mo maximum)</label><input type="file" name="image" accept="image/*" required><div class="image-info" data-entry-info></div><label>Description</label><input name="text" maxlength="500" placeholder="Décris ton travail"><button class="primary">Envoyer ma participation</button></form>`:""}
+    ${c.entries.map(en=>{const u=state.users.find(x=>x.id===en.userId)||{name:"Membre"};return `<div class="panel">${avatar(u)} <strong>${nameHTML(u)}</strong>${en.image?`<img class="post-image" data-zoom src="${en.image}" alt="Participation">`:""}<div class="image-info">${esc(en.imageInfo||"")}</div><p>${esc(en.text||"")}</p><button class="secondary" data-vote="${esc(c.id)}" data-entry-id="${esc(en.id)}">👍 ${en.votes||0} Voter</button></div>`}).join("")}
+    </article>`;
+  }).join("")||`<div class="panel muted">Aucun défi pour le moment.</div>`;
+}
+$("challengeList").onsubmit=async e=>{
+  const f=e.target.closest("[data-entry]");if(!f)return;e.preventDefault();
+  try{
+    const img=await inspectImage(f.elements.image.files[0]),c=state.challenges.find(x=>x.id===f.dataset.entry);
+    if(!c||c.closed||c.deadline<Date.now())throw Error("Ce défi est terminé.");
+    c.entries=c.entries||[];let old=c.entries.find(x=>x.userId===state.me);
+    if(old)Object.assign(old,{image:img.data,imageInfo:`${img.width} × ${img.height} px · ${fmtBytes(img.size)}`,text:f.elements.text.value.trim()});
+    else c.entries.push({id:uid(),userId:state.me,image:img.data,imageInfo:`${img.width} × ${img.height} px · ${fmtBytes(img.size)}`,text:f.elements.text.value.trim(),votes:0,voters:[]});
+    await save();renderChallenges();
+  }catch(err){alert(err.message)}
+};
+$("challengeList").onclick=async e=>{
+  const b=e.target.closest("[data-vote]");if(!b)return;
+  const c=state.challenges.find(x=>x.id===b.dataset.vote),en=c?.entries.find(x=>x.id===b.dataset.entryId);
+  if(!en||en.userId===state.me){alert("Tu ne peux pas voter pour ta propre création.");return}
+  en.voters=en.voters||[];if(en.voters.includes(state.me)){alert("Tu as déjà voté.");return}
+  en.voters.push(state.me);en.votes=(en.votes||0)+1;await save();renderChallenges();
+};
+$("memberSearch").oninput=renderMembers;
+function renderMembers(){
+  const q=$("memberSearch").value.trim().toLowerCase();
+  $("memberList").innerHTML=state.users.filter(u=>u.status==="approved"&&u.id!==state.me&&u.name.toLowerCase().includes(q)).map(u=>`<div class="member"><button class="secondary" data-open="${esc(u.id)}" style="flex:1;display:flex;gap:9px;align-items:center;text-align:left">${avatar(u)}<span><strong>${nameHTML(u)}</strong><br><span class="muted">${esc(u.bio||"Membre OVY GRAPHIX")}</span></span></button></div>`).join("")||`<p class="muted">Aucun membre trouvé.</p>`;
+}
+$("memberList").onclick=e=>{const b=e.target.closest("[data-open]");if(b){publicProfileId=b.dataset.open;setPage("publicProfile")}};
+$("profileForm").onsubmit=async e=>{
+  e.preventDefault();const u=me();if(!u)return;
+  try{
+    const af=$("profileAvatar").files[0],cf=$("profileCover").files[0];
+    const a=await inspectImage(af),c=await inspectImage(cf);
+    u.name=$("profileName").value.trim();u.bio=$("profileBio").value.trim();
+    if(a)u.avatar=a.data;if(c)u.cover=c.data;
+    await save();renderProfile();alert("Profil enregistré.");
+  }catch(err){alert(err.message)}
+};
+function renderProfile(){
+  const u=me();if(!u)return;
+  $("myProfileName").innerHTML=nameHTML(u);$("myProfileEmail").textContent=u.email;
+  $("profileName").value=u.name;$("profileBio").value=u.bio||"";
+  $("myAvatarPreview").src=u.avatar||"";$("myCoverPreview").src=u.cover||"";
+  $("myCoverPreview").style.visibility=u.cover?"visible":"hidden";
+  $("myPosts").innerHTML=state.posts.filter(p=>p.userId===u.id).sort((a,b)=>b.created-a.created).map(postCard).join("")||`<p class="muted">Aucune publication.</p>`;
+}
+function renderPublicProfile(){
+  const u=state.users.find(x=>x.id===publicProfileId&&x.status==="approved");
+  if(!u){$("publicProfileContent").textContent="Profil introuvable.";return}
+  $("publicProfileContent").innerHTML=`<div class="profile-card">${u.cover?`<img class="cover" src="${u.cover}" alt="Couverture">`:""}<div class="row">${avatar(u,"width:68px;height:68px")}<div><h2>${nameHTML(u)}</h2><div class="muted">Membre depuis ${dateText(u.created)}</div></div></div><p>${esc(u.bio||"Aucune biographie.")}</p></div><h3>Publications</h3>${state.posts.filter(p=>p.userId===u.id).sort((a,b)=>b.created-a.created).map(postCard).join("")||`<p class="muted">Aucune publication.</p>`}`;
+}
+function userRow(u){
+  return `<div class="member"><div class="member-info"><strong>${nameHTML(u)}</strong><br><span class="muted">${esc(u.email)} · ${esc(u.status)}</span></div>
+  ${u.status==="pending"?`<button class="primary" data-approve="${esc(u.id)}">Approuver</button><button class="danger" data-reject="${esc(u.id)}">Refuser</button>`:""}
+  ${u.role!=="admin"?`<button class="secondary" data-verify="${esc(u.id)}">${u.verified?"Retirer badge":"Vérifier"}</button><button class="danger" data-remove="${esc(u.id)}">Retirer</button>`:""}</div>`;
+}
+function renderAdmin(){
+  if(!admin())return;
+  $("pendingUsers").innerHTML=state.users.filter(u=>u.status==="pending").map(userRow).join("")||`<p class="muted">Aucune demande.</p>`;
+  $("adminUsers").innerHTML=state.users.map(userRow).join("");
+  $("adminPosts").innerHTML=state.posts.map(p=>`<div class="member"><span class="member-info">${esc(p.text||"Publication avec image")}</span><button class="danger" data-admin-del-post="${esc(p.id)}">Supprimer</button></div>`).join("");
+  $("adminChallenges").innerHTML=state.challenges.map(c=>`<div class="member"><span class="member-info">${esc(c.title)}</span><button class="secondary" data-toggle-challenge="${esc(c.id)}">${c.closed?"Réouvrir":"Fermer"}</button><button class="danger" data-delete-challenge="${esc(c.id)}">Supprimer</button></div>`).join("");
+}
+$("page-admin").onclick=async e=>{
+  if(!admin())return;const b=e.target.closest("button");if(!b)return;
+  const approve=state.users.find(u=>u.id===b.dataset.approve);
+  if(approve){approve.status="approved";await save();renderAdmin();return}
+  const reject=state.users.find(u=>u.id===b.dataset.reject);
+  if(reject){reject.status="rejected";await save();renderAdmin();return}
+  const ver=state.users.find(u=>u.id===b.dataset.verify);
+  if(ver){ver.verified=!ver.verified;await save();renderAdmin();return}
+  const rem=state.users.find(u=>u.id===b.dataset.remove);
+  if(rem&&confirm("Retirer ce compte ?")){state.users=state.users.filter(u=>u.id!==rem.id);await save();renderAdmin();return}
+  if(b.dataset.adminDelPost){state.posts=state.posts.filter(p=>p.id!==b.dataset.adminDelPost);await save();renderAdmin();return}
+  const c=state.challenges.find(x=>x.id===b.dataset.toggleChallenge);
+  if(c){c.closed=!c.closed;await save();renderAdmin();return}
+  if(b.dataset.deleteChallenge&&confirm("Supprimer ce défi ?")){state.challenges=state.challenges.filter(x=>x.id!==b.dataset.deleteChallenge);await save();renderAdmin()}
+};
+$("bannerUpload").onchange=async()=>{
+  const f=$("bannerUpload").files[0];if(!f)return;
+  try{const img=await inspectImage(f);state.banner=img.data;await save();renderBanner();$("bannerImageInfo").textContent=`${img.width} × ${img.height} px · ${fmtBytes(img.size)}`;alert("Bannière modifiée sur cet appareil.")}
+  catch(err){alert(err.message);$("bannerUpload").value=""}
+};
+$("removeBanner").onclick=async()=>{state.banner="";await save();renderBanner();$("bannerImageInfo").textContent=""};
+
+[
+["postImage","postImageInfo"],
+["challengeImage","challengeImageInfo"],
+["profileAvatar","profileAvatarInfo"],
+["profileCover","profileCoverInfo"],
+["bannerUpload","bannerImageInfo"]
+].forEach(([a,b])=>bindImageInfo(a,b));
+
+async function init(){
+  try{
+    db=await openDB();
+    const saved=await getDB(KEY);
+    if(saved&&typeof saved==="object")state={...state,...saved};
+    state.users=Array.isArray(state.users)?state.users:[];
+    state.posts=Array.isArray(state.posts)?state.posts:[];
+    state.challenges=Array.isArray(state.challenges)?state.challenges:[];
+    renderAuth();
+    if(me())setPage("feed");
+  }catch(err){
+    alert("Impossible d'ouvrir le stockage local. Essaie avec un navigateur récent et suffisamment d'espace.");
+    console.error(err);
+  }
+}
+init();
+</script>
+</body>
+</html>
